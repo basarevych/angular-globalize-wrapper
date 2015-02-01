@@ -8,7 +8,7 @@ app.config(
         $routeProvider.
             when('/', {
                 controller: 'Controller',
-                templateUrl: 'views/index.html',
+                templateUrl: 'demo/views/index.html',
             }).
             otherwise({
                 redirectTo: '/'
@@ -19,8 +19,8 @@ app.config(
 app.config(
     [ 'globalizeWrapperProvider',
     function (globalizeWrapperProvider) {
-        globalizeWrapperProvider.setCldrBasePath('../bower_components/cldr-data');
-        globalizeWrapperProvider.setL10nBasePath('l10n');
+        globalizeWrapperProvider.setCldrBasePath('bower_components/cldr-data');
+        globalizeWrapperProvider.setL10nBasePath('demo/l10n');
     } ]
 );
 
