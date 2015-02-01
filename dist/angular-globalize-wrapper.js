@@ -143,3 +143,18 @@ glModule.filter('glNumber',
          };
     } ]
 );
+
+glModule.filter('glCurrency',
+    [ 'globalizeWrapper',
+    function (globalizeWrapper) {
+        return function (input, currency, params) {
+            if (angular.isUndefined(input) || angular.isUndefined(currency))
+                return undefined;
+            if (input.length == 0)
+                return '';
+
+            var gl = globalizeWrapper.getGlobalize();
+            return gl.formatCurrency(input, currency, params);
+         };
+    } ]
+);
