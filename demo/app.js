@@ -21,6 +21,19 @@ app.config(
     function (globalizeWrapperProvider) {
         globalizeWrapperProvider.setCldrBasePath('bower_components/cldr-data');
         globalizeWrapperProvider.setL10nBasePath('demo/l10n');
+        globalizeWrapperProvider.setMainResources([
+            '/currencies.json',
+            '/ca-gregorian.json',
+            '/timeZoneNames.json',
+            '/numbers.json'
+        ]);
+        globalizeWrapperProvider.setSupplementalResources([
+            '/currencyData.json',
+            '/likelySubtags.json',
+            '/plurals.json',
+            '/timeData.json',
+            '/weekData.json'
+        ]);
     } ]
 );
 
@@ -40,6 +53,6 @@ app.controller('Controller',
 app.run(
     [ 'globalizeWrapper',
     function (globalizeWrapper) {
-        globalizeWrapper.setLocale('en');
+//        globalizeWrapper.setLocale('en');
     } ]
 );
