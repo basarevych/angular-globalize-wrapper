@@ -53,6 +53,6 @@ app.controller('Controller',
 app.run(
     [ 'globalizeWrapper',
     function (globalizeWrapper) {
-//        globalizeWrapper.setLocale('en');
+        globalizeWrapper.setLocale('en');
     } ]
 );
