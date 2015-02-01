@@ -1,8 +1,8 @@
 'use strict';
 
-var glModule = angular.module('globalize', []);
+var glModule = angular.module('globalizeWrapper', []);
 
-glModule.provider('globalize', function () {
+glModule.provider('globalizeWrapper', function () {
     var cldrBasePath = 'bower_components/cldr-data';
     var l10nBasePath = 'l10n';
 
@@ -35,7 +35,7 @@ glModule.provider('globalize', function () {
             return (mainLoaded && supplementalLoaded);
         };
 
-        function setLocale(locale) {
+        function loadLocale(locale) {
             $q.all([
                 $http.get(cldrBasePath + '/main/' + locale + '/currencies.json'),
                 $http.get(cldrBasePath + '/main/' + locale + '/ca-gregorian.json'),
@@ -58,6 +58,7 @@ glModule.provider('globalize', function () {
         function finishLoading() {
             if (!isLoaded())
                 return;
+
             Globalize.load(
                 currencies,
                 caGregorian,
@@ -77,7 +78,7 @@ glModule.provider('globalize', function () {
 
         return {
             isLoaded: isLoaded,
-            setLocale: setLocale,
+            loadLocale: loadLocale,
             getGlobalize: function () { return globalize; },
         };
     } ];

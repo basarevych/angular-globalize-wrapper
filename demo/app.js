@@ -1,15 +1,18 @@
 'use strict';
 
-var app = angular.module('App', ['globalize']);
+var app = angular.module('app', ['globalizeWrapper']);
 
-app.config(function (globalizeProvider) {
-    globalizeProvider.setCldrBasePath('../bower_components/cldr-data');
-    globalizeProvider.setL10nBasePath('l10n');
-});
+app.config(
+    [ 'globalizeWrapperProvider',
+    function (globalizeWrapperProvider) {
+        globalizeWrapperProvider.setCldrBasePath('../bower_components/cldr-data');
+        globalizeWrapperProvider.setL10nBasePath('l10n');
+    } ]
+);
 
 app.run(
-    [ 'globalize',
-    function (globalize) {
-        globalize.setLocale('en');
+    [ 'globalizeWrapper',
+    function (globalizeWrapper) {
+        globalizeWrapper.loadLocale('en');
     } ]
 );
