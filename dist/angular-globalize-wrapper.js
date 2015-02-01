@@ -13,7 +13,7 @@ glModule.provider('globalizeWrapper', function () {
         var globalize = null, currentLocale = null;
         var mainLoaded = false, supplementalLoaded = false;
         var currencyData, likelySubtags, plurals, timeData, weekData;
-        var currencies, caGregorian, numbers, messages;
+        var currencies, caGregorian, timeZoneNames, numbers, messages;
 
         $q.all([
             $http.get(cldrBasePath + '/supplemental/currencyData.json'),
@@ -38,17 +38,19 @@ glModule.provider('globalizeWrapper', function () {
             return (mainLoaded && supplementalLoaded);
         };
 
-        function loadLocale(locale) {
+        function setLocale(locale) {
             $q.all([
                 $http.get(cldrBasePath + '/main/' + locale + '/currencies.json'),
                 $http.get(cldrBasePath + '/main/' + locale + '/ca-gregorian.json'),
+                $http.get(cldrBasePath + '/main/' + locale + '/timeZoneNames.json'),
                 $http.get(cldrBasePath + '/main/' + locale + '/numbers.json'),
                 $http.get(l10nBasePath + '/' + locale + '.json'),
             ]).then(function (results) {
                 currencies = results[0].data;
                 caGregorian = results[1].data;
-                numbers = results[2].data;
-                messages = results[3].data;
+                timeZoneNames = results[2].data;
+                numbers = results[3].data;
+                messages = results[4].data;
 
                 currentLocale = locale;
                 mainLoaded = true;
@@ -65,6 +67,7 @@ glModule.provider('globalizeWrapper', function () {
             Globalize.load(
                 currencies,
                 caGregorian,
+                timeZoneNames,
                 numbers,
                 currencyData,
                 likelySubtags,
@@ -81,7 +84,8 @@ glModule.provider('globalizeWrapper', function () {
 
         return {
             isLoaded: isLoaded,
-            loadLocale: loadLocale,
+            setLocale: setLocale,
+            getLocale: function () { return currentLocale; },
             getGlobalize: function () { return globalize; },
         };
     } ];
@@ -94,3 +98,18 @@ glModule.provider('globalizeWrapper', function () {
         l10nBasePath = path;
     };
 });
+
+glModule.filter('glDate',
+    [ 'globalizeWrapper',
+    function (globalizeWrapper) {
+        return function (input, params) {
+            if (angular.isUndefined(input) || angular.isUndefined(params))
+                return undefined;
+            if (input.length == 0)
+                return '';
+
+            var gl = globalizeWrapper.getGlobalize();
+            return gl.formatDate(input, params);
+         };
+    } ]
+);
