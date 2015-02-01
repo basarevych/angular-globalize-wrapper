@@ -1,5 +1,19 @@
 {
     "en": {
-        "SAMPLE": "Sample string"
+        "SAMPLE": "Sample string",
+        "TASK": [
+            "You have {count, plural,",
+            "      =0 {no tasks}",
+            "      =1 {one task}",
+            "   other {# tasks}",
+            "} remaining"
+        ],
+        "LIKED": [
+            "{GENDER, select,",
+            "   male{He}",
+            " female{She}",
+            "  other{They}",
+            "} liked this."
+        ]
     }
 }

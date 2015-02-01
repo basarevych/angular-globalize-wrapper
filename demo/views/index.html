@@ -5,11 +5,24 @@
     </div>
     <div class="row">
         Date:
-        {{ dt | glDate:{datetime: "full"} }}
+        {{ dt | glDate:{ datetime: "full" } }}
     </div>
     <div class="row">
-        Message:
-        {{ 'SAMPLE' | glMessage }}
+        Simple Message:
+        {{ 'SAMPLE' | glMessage }}<br>
+
+        <br>Plural: <br>
+        {{ 'TASK' | glMessage:{ count: 0 } }}<br>
+        {{ 'TASK' | glMessage:{ count: 1 } }}<br>
+        {{ 'TASK' | glMessage:{ count: 2 } }}<br>
+        {{ 'TASK' | glMessage:{ count: 3 } }}<br>
+        {{ 'TASK' | glMessage:{ count: 4 } }}<br>
+        {{ 'TASK' | glMessage:{ count: 5 } }}<br>
+
+        <br>Gender: <br>
+        Male: {{ 'LIKED' | glMessage:{ GENDER: 'male' } }}<br>
+        Female: {{ 'LIKED' | glMessage:{ GENDER: 'female' } }}<br>
+        They: {{ 'LIKED' | glMessage:{} }}<br>
     </div>
     <div class="row">
         Number:
