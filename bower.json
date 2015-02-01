@@ -1,0 +1,16 @@
+{
+    "name": "angular-globalize-wrapper",
+    "description": "AngularJS wrapper for jQuery.Globalize",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Ross Basarevych",
+            "email": "basarevych@gmail.com"
+        }
+    ],
+    "version": "0.0.1",
+    "devDependencies": {
+        "angular": "~1.2.28",
+        "globalize": "~1.0.0"
+    }
+}
