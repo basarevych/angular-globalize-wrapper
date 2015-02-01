@@ -113,3 +113,18 @@ glModule.filter('glDate',
          };
     } ]
 );
+
+glModule.filter('glMessage',
+    [ 'globalizeWrapper',
+    function (globalizeWrapper) {
+        return function (input, params) {
+            if (angular.isUndefined(input))
+                return undefined;
+            if (input.length == 0)
+                return '';
+
+            var gl = globalizeWrapper.getGlobalize();
+            return gl.formatMessage(input, params);
+         };
+    } ]
+);

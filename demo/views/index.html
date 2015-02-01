@@ -1,10 +1,14 @@
 <div class="container">
-    <div class="row">
+    <div class="row buttons">
         <button class="btn btn-default" ng-click="switchLocale('en')">EN</button>
         <button class="btn btn-default" ng-click="switchLocale('ru')">RU</button>
     </div>
     <div class="row">
         Date:
         {{ dt | glDate:{datetime: "full"} }}
+    </div>
+    <div class="row">
+        Message:
+        {{ 'SAMPLE' | glMessage }}
     </div>
 </div>
