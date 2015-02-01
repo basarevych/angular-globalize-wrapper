@@ -10,6 +10,10 @@
     ],
     "version": "0.0.1",
     "main": "dist/angular-globalize-wrapper.js",
+    "ignore": [
+        "index.html",
+        "demo/**/*"
+    ],
     "dependencies": {
         "globalize": "~1.0.0"
     }
