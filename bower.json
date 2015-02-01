@@ -9,7 +9,8 @@
         }
     ],
     "version": "0.0.1",
-    "devDependencies": {
+    "main": "dist/angular-globalize-wrapper.js",
+    "dependencies": {
         "globalize": "~1.0.0"
     }
 }
