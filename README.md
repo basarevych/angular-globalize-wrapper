@@ -11,7 +11,7 @@ Installation
 1. Add to **bower.json** "dependencies" section of your project:
 
   ```
-  "angular-globalize-wrapper": "master"
+  "angular-globalize-wrapper": "~0.1.0"
   ```
 
 2. Create **.bowerrc** file:
