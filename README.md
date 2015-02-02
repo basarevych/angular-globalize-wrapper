@@ -3,6 +3,8 @@ angular-globalize-wrapper
 
 AngularJS wrapper for [jQuery.Globlize](https://github.com/jquery/globalize) library (I18n/L10n).
 
+See [the demo page](http://demo.daemon-notes.com/angular-globalize-wrapper/#/) for examples.
+
 Installation
 ============
 
@@ -135,7 +137,9 @@ Installation
 
 8. Actual internationalization/translation is done with the help of filters:
 
-  * Original **.parseDate( value, pattern )**
+  See [the demo page](http://demo.daemon-notes.com/angular-globalize-wrapper/#/) for examples.
+
+  * Original **.formatDate( value, pattern )**
 
     Becomes: {{ value | glDate:pattern }}
 
