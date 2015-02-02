@@ -12,7 +12,7 @@
     "main": "dist/angular-globalize-wrapper.js",
     "ignore": [
         "index.html",
-        "demo/**/*"
+        "demo"
     ],
     "dependencies": {
         "globalize": "~1.0.0"

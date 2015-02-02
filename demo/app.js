@@ -38,21 +38,20 @@ app.config(
 );
 
 app.controller('Controller',
-    [ '$scope', '$timeout', '$route', 'globalizeWrapper',
-    function ($scope, $timeout, $route, globalizeWrapper) {
+    [ '$scope', 'globalizeWrapper',
+    function ($scope, globalizeWrapper) {
         $scope.dt = new Date();
-
         $scope.switchLocale = function (locale) {
             globalizeWrapper.setLocale(locale);
         };
 
-        $scope.$on('GlobalizeLoadSuccess', function () { $route.reload(); });
     } ]
 );
 
 app.run(
-    [ 'globalizeWrapper',
-    function (globalizeWrapper) {
+    [ '$rootScope', '$route', 'globalizeWrapper',
+    function ($rootScope, $route, globalizeWrapper) {
+        $rootScope.$on('GlobalizeLoadSuccess', function () { $route.reload(); });
         globalizeWrapper.setLocale('en');
     } ]
 );
