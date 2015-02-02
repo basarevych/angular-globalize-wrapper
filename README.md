@@ -183,3 +183,6 @@ Installation
 
     Returns the globalize object instance. See Globalize [API referrence](https://github.com/jquery/globalize#api) for methods available in this object.
 
+  * **hasMessage(path)**
+
+    Return true if path is present in translation file.

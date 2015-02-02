@@ -93,6 +93,9 @@ glModule.provider('globalizeWrapper', function () {
             setLocale: setLocale,
             getLocale: function () { return currentLocale; },
             getGlobalize: function () { return globalize; },
+            hasMessage: function (path) {
+                return typeof messagesData[currentLocale][path] != 'undefined';
+            },
         };
     } ];
 
@@ -136,6 +139,10 @@ glModule.filter('glMessage',
                 return undefined;
             if (input.length == 0 || !globalizeWrapper.isLoaded())
                 return '';
+            if (!globalizeWrapper.hasMessage(input)) {
+                console.log('Missing translation: ' + input);
+                return input;
+            }
 
             var gl = globalizeWrapper.getGlobalize();
             return gl.formatMessage(input, params);
