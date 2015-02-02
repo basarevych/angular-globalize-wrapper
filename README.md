@@ -1,7 +1,7 @@
 angular-globalize-wrapper
 =========================
 
-AngularJS wrapper for [jQuery.Globlize](https://github.com/jquery/globalize) library (I18n/L10n).
+AngularJS wrapper for [jQuery.Globalize](https://github.com/jquery/globalize) library (I18n/L10n).
 
 See [the demo page](http://demo.daemon-notes.com/angular-globalize-wrapper/#/) for examples.
 
