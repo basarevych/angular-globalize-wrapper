@@ -1,4 +1,4 @@
-/* angular-globalize-wrapper - v0.0.1 - 2015-02-02
+/* angular-globalize-wrapper - v0.1.0 - 2015-02-02
    Copyright (c) 2015 Ross Basarevych; Licensed MIT */
 
 'use strict';
@@ -83,10 +83,12 @@ glModule.provider('globalizeWrapper', function () {
             if (!isLoaded())
                 return;
 
-            Globalize.load(mainData.concat(supplementalData));
-            Globalize.loadMessages(messagesData);
-
-            globalize = Globalize(currentLocale);
+            var data = mainData.concat(supplementalData);
+            if (data.length) {
+                Globalize.load(data);
+                Globalize.loadMessages(messagesData);
+                globalize = Globalize(currentLocale);
+            }
 
             $rootScope.$broadcast('GlobalizeLoadSuccess');
         };
@@ -129,7 +131,7 @@ glModule.filter('glDate',
                 return '';
 
             var gl = globalizeWrapper.getGlobalize();
-            return gl.formatDate(input, params);
+            return gl ? gl.formatDate(input, params) : input;
          };
     } ]
 );
@@ -148,7 +150,7 @@ glModule.filter('glMessage',
             }
 
             var gl = globalizeWrapper.getGlobalize();
-            return gl.formatMessage(input, params);
+            return gl ? gl.formatMessage(input, params) : input;
          };
     } ]
 );
@@ -163,7 +165,7 @@ glModule.filter('glNumber',
                 return '';
 
             var gl = globalizeWrapper.getGlobalize();
-            return gl.formatNumber(input, params);
+            return gl ? gl.formatNumber(input, params) : input;
          };
     } ]
 );
@@ -178,7 +180,7 @@ glModule.filter('glCurrency',
                 return '';
 
             var gl = globalizeWrapper.getGlobalize();
-            return gl.formatCurrency(input, currency, params);
+            return gl ? gl.formatCurrency(input, currency, params) : input;
          };
     } ]
 );
