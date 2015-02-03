@@ -2,7 +2,7 @@
 
 describe('GlobalizeWrapper', function() {
 
-    var globalizeWrapper, $httpBackend;
+    var globalizeWrapper, $rootScope, $httpBackend;
 
     var cldrBasePath = 'bower_components/cldr-data';
     var mainResources = [
@@ -20,10 +20,10 @@ describe('GlobalizeWrapper', function() {
     ];
 
     var l10nBasePath = 'demo/l10n';
-    var l10nResources = [
-        'en.json',
-        'ru.json',
-    ];
+    var l10nResources = {
+        en: 'en.json',
+        ru: 'ru.json',
+    };
 
     beforeEach(function (){
         angular.mock.module('globalizeWrapper', function (globalizeWrapperProvider) {
@@ -34,29 +34,10 @@ describe('GlobalizeWrapper', function() {
         });
     });
 
-    beforeEach(inject(function (_globalizeWrapper_) {
+    beforeEach(inject(function (_globalizeWrapper_, _$rootScope_, _$httpBackend_) {
         globalizeWrapper = _globalizeWrapper_;
-    }));
-
-    beforeEach(inject(function (_$httpBackend_) {
+        $rootScope = _$rootScope_;
         $httpBackend = _$httpBackend_;
-
-        for (var i = 0; i < mainResources.length; i++) {
-            var file = cldrBasePath + '/main/en/' + mainResources[i];
-            $httpBackend.whenGET(file).respond(readJSON(file));
-            var file = cldrBasePath + '/main/ru/' + mainResources[i];
-            $httpBackend.whenGET(file).respond(readJSON(file));
-        }
-
-        for (var i = 0; i < supplementalResources.length; i++) {
-            var file = cldrBasePath + '/supplemental/' + supplementalResources[i];
-            $httpBackend.whenGET(file).respond(readJSON(file));
-        }
-
-        for (var i = 0; i < l10nResources.length; i++) {
-            var file = l10nBasePath + '/' + l10nResources[i];
-            $httpBackend.whenGET(file).respond(readJSON(file));
-        }
     }));
 
     afterEach(function () {
@@ -64,11 +45,52 @@ describe('GlobalizeWrapper', function() {
         $httpBackend.verifyNoOutstandingRequest();
     });
 
-    it('is loaded', function (done) {
+
+    it('is switching locales', function () {
+        var spy = spyOn($rootScope, '$broadcast').and.callThrough();
+
+        for (var i = 0; i < supplementalResources.length; i++) {
+            var file = cldrBasePath + '/supplemental/' + supplementalResources[i];
+            $httpBackend.expectGET(file).respond(readJSON(file));
+        }
+
+        for (var i = 0; i < mainResources.length; i++) {
+            var file = cldrBasePath + '/main/en/' + mainResources[i];
+            $httpBackend.whenGET(file).respond(readJSON(file));
+        }
+
+        var file = l10nBasePath + '/' + l10nResources['en'];
+        $httpBackend.whenGET(file).respond(readJSON(file));
+
+        expect(globalizeWrapper.isLoaded()).toBeFalsy();
+
+        // Switch to EN and download everything
         globalizeWrapper.setLocale('en');
         $httpBackend.flush();
+
         expect(globalizeWrapper.isLoaded()).toBeTruthy();
-        done();
+        expect(spy).toHaveBeenCalledWith('GlobalizeLoadSuccess');
+
+        for (var i = 0; i < mainResources.length; i++) {
+            var file = cldrBasePath + '/main/ru/' + mainResources[i];
+            $httpBackend.whenGET(file).respond(readJSON(file));
+        }
+
+        var file = l10nBasePath + '/' + l10nResources['ru'];
+        $httpBackend.whenGET(file).respond(readJSON(file));
+
+        // Switch to RU and download new /main/ resources only
+        globalizeWrapper.setLocale('ru');
+        $httpBackend.flush();
+
+        expect(globalizeWrapper.isLoaded()).toBeTruthy();
+        expect(spy).toHaveBeenCalledWith('GlobalizeLoadSuccess');
+
+        // Switch back to cached EN - no downloads
+        globalizeWrapper.setLocale('en');
+
+        expect(globalizeWrapper.isLoaded()).toBeTruthy();
+        expect(spy).toHaveBeenCalledWith('GlobalizeLoadSuccess');
     });
 
 });
