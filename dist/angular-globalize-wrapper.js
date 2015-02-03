@@ -1,4 +1,4 @@
-/* angular-globalize-wrapper - v0.1.0 - 2015-02-02
+/* angular-globalize-wrapper - v0.1.0 - 2015-02-03
    Copyright (c) 2015 Ross Basarevych; Licensed MIT */
 
 'use strict';

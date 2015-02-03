@@ -27,17 +27,39 @@ module.exports = function(grunt) {
             options: {
                 banner: '<%= banner %>'
             },
-            dist: {
+            js: {
                 src: '<%= concat.js.dest %>',
                 dest: 'dist/<%= pkg.name %>.min.js'
             },
+        },
+
+        karma: {
+            unit: {
+                configFile: 'test/karma.conf.js',
+                singleRun: true,
+                autoWatch: false,
+                options: {
+                    files: [
+                        "http://ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular.js",
+                        "http://ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular-route.js",
+                        "http://ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular-mocks.js",
+                        { pattern: 'bower_components/cldr-data/**/*.json', included: false, served: true },
+                        { pattern: 'demo/l10n/*.json', included: false, served: true },
+                        '<%= uglify.js.dest %>',
+                        'test/unit/**/*.js',
+                    ],
+                }
+            }
         },
     });
 
     // These plugins provide necessary tasks.
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-karma');
 
     // Default task.
     grunt.registerTask('default', ['concat', 'uglify']);
+
+    grunt.registerTask('test', ['concat', 'uglify', 'karma']);
 };
