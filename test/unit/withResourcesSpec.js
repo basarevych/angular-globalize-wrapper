@@ -56,11 +56,11 @@ describe('GlobalizeWrapper', function() {
 
         for (var i = 0; i < mainResources.length; i++) {
             var file = cldrBasePath + '/main/en/' + mainResources[i];
-            $httpBackend.whenGET(file).respond(readJSON(file));
+            $httpBackend.expectGET(file).respond(readJSON(file));
         }
 
         var file = l10nBasePath + '/' + l10nResources['en'];
-        $httpBackend.whenGET(file).respond(readJSON(file));
+        $httpBackend.expectGET(file).respond(readJSON(file));
 
         expect(globalizeWrapper.isLoaded()).toBeFalsy();
 
@@ -68,29 +68,35 @@ describe('GlobalizeWrapper', function() {
         globalizeWrapper.setLocale('en');
         $httpBackend.flush();
 
-        expect(globalizeWrapper.isLoaded()).toBeTruthy();
         expect(spy).toHaveBeenCalledWith('GlobalizeLoadSuccess');
+        expect(globalizeWrapper.isLoaded()).toBeTruthy();
+        expect(globalizeWrapper.getLocale()).toBe('en');
+        expect(globalizeWrapper.getGlobalize()).not.toBe(null);
 
         for (var i = 0; i < mainResources.length; i++) {
             var file = cldrBasePath + '/main/ru/' + mainResources[i];
-            $httpBackend.whenGET(file).respond(readJSON(file));
+            $httpBackend.expectGET(file).respond(readJSON(file));
         }
 
         var file = l10nBasePath + '/' + l10nResources['ru'];
-        $httpBackend.whenGET(file).respond(readJSON(file));
+        $httpBackend.expectGET(file).respond(readJSON(file));
 
         // Switch to RU and download new /main/ resources only
         globalizeWrapper.setLocale('ru');
         $httpBackend.flush();
 
-        expect(globalizeWrapper.isLoaded()).toBeTruthy();
         expect(spy).toHaveBeenCalledWith('GlobalizeLoadSuccess');
+        expect(globalizeWrapper.isLoaded()).toBeTruthy();
+        expect(globalizeWrapper.getLocale()).toBe('ru');
+        expect(globalizeWrapper.getGlobalize()).not.toBe(null);
 
         // Switch back to cached EN - no downloads
         globalizeWrapper.setLocale('en');
 
-        expect(globalizeWrapper.isLoaded()).toBeTruthy();
         expect(spy).toHaveBeenCalledWith('GlobalizeLoadSuccess');
+        expect(globalizeWrapper.isLoaded()).toBeTruthy();
+        expect(globalizeWrapper.getLocale()).toBe('en');
+        expect(globalizeWrapper.getGlobalize()).not.toBe(null);
     });
 
 });
