@@ -20,9 +20,9 @@ glModule.provider('globalizeWrapper', function () {
     ];
  
     this.$get = [ '$q', '$http', '$rootScope', function ($q, $http, $rootScope) {
-        var globalize = null, currentLocale = null;
+        var globalizeInstances = {}, currentLocale = null, localeChanged = false;
         var mainLoaded = false, supplementalLoaded = false, messagesLoaded = false;
-        var mainData = [], supplementalData = [], messagesData = [];
+        var mainData = [], supplementalData = [], messagesData = {};
 
         loadResources(
             cldrBasePath + '/supplemental',
@@ -52,11 +52,20 @@ glModule.provider('globalizeWrapper', function () {
         };
 
         function setLocale(locale) {
+            if (currentLocale == locale)
+                return;
+
+            localeChanged = false;
             currentLocale = locale;
+
+            if (typeof globalizeInstances[currentLocale] != 'undefined') {
+                finishLoading();
+                return;
+            }
 
             mainLoaded = false;
             loadResources(
-                cldrBasePath + '/main/' + locale,
+                cldrBasePath + '/main/' + currentLocale,
                 mainResources,
                 function (results) {
                     mainData = [];
@@ -68,23 +77,34 @@ glModule.provider('globalizeWrapper', function () {
             );
 
             messagesLoaded = false;
-            $http.get(l10nBasePath + '/' + locale + '.json')
+            $http.get(l10nBasePath + '/' + currentLocale + '.json')
                 .then(function (result) {
-                    messagesData = result.data;
+                    messagesData = result.data[currentLocale];
                     messagesLoaded = true;
                     finishLoading();
                 });
         };
 
         function finishLoading() {
-            if (!isLoaded())
+            if (!isLoaded() || localeChanged)
                 return;
 
-            var data = mainData.concat(supplementalData);
-            if (data.length) {
-                Globalize.load(data);
-                Globalize.loadMessages(messagesData);
-                globalize = Globalize(currentLocale);
+            localeChanged = true;
+
+            if (typeof globalizeInstances[currentLocale] == 'undefined') {
+                var instance = null;
+                var data = mainData.concat(supplementalData);
+                if (data.length) {
+                    Globalize.load(data);
+                    
+                    data = { };
+                    data[currentLocale] = messagesData;
+                    Globalize.loadMessages(data);
+                    
+                    instance = Globalize(currentLocale);
+                }
+
+                globalizeInstances[currentLocale] = instance;
             }
 
             $rootScope.$broadcast('GlobalizeLoadSuccess');
@@ -94,9 +114,9 @@ glModule.provider('globalizeWrapper', function () {
             isLoaded: isLoaded,
             setLocale: setLocale,
             getLocale: function () { return currentLocale; },
-            getGlobalize: function () { return globalize; },
+            getGlobalize: function () { return globalizeInstances[currentLocale]; },
             hasMessage: function (path) {
-                return typeof messagesData[currentLocale][path] != 'undefined';
+                return typeof messagesData[path] != 'undefined';
             },
         };
     } ];
