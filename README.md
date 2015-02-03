@@ -139,6 +139,8 @@ Installation
 
   See [the demo page](http://demo.daemon-notes.com/angular-globalize-wrapper/#/) for examples.
 
+  See original [API specs](https://github.com/jquery/globalize#api) for filters options.
+
   * Original **.formatDate( value, pattern )**
 
     Becomes: {{ value | glDate:pattern }}
@@ -179,10 +181,14 @@ Installation
 
     Returns current locale
 
-  * **getGlobalize**
+  * **getGlobalize(locale)**
 
-    Returns the globalize object instance. See Globalize [API referrence](https://github.com/jquery/globalize#api) for methods available in this object.
+    Returns the globalize object instance for the given locale.
 
-  * **hasMessage(path)**
+    **locale** argument is optional, current locale will be used if it is omitted.
+
+  * **hasMessage(path, locale)**
 
     Return true if path is present in translation file.
+
+    **locale** argument is optional, current locale will be used if it is omitted.
