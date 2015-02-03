@@ -82,7 +82,7 @@ glModule.provider('globalizeWrapper', function () {
             messagesLoaded = false;
             $http.get(l10nBasePath + '/' + currentLocale + '.json')
                 .then(function (result) {
-                    messagesData = result.data;
+                    messagesData[currentLocale] = result.data[currentLocale];
                     messagesLoaded = true;
                     finishLoading();
                 });
@@ -99,11 +99,12 @@ glModule.provider('globalizeWrapper', function () {
                 var data = mainData.concat(supplementalData);
                 if (data.length) {
                     Globalize.load(data);
-                    Globalize.loadMessages(messagesData);
+
+                    var messages = {};
+                    messages[currentLocale] = messagesData[currentLocale];
+                    Globalize.loadMessages(messages);
                     
                     instance = Globalize(currentLocale);
-
-                    messagesData = messagesData[currentLocale];
                 }
 
                 globalizeInstances[currentLocale] = instance;
@@ -116,9 +117,15 @@ glModule.provider('globalizeWrapper', function () {
             isLoaded: isLoaded,
             setLocale: setLocale,
             getLocale: function () { return currentLocale; },
-            getGlobalize: function () { return globalizeInstances[currentLocale]; },
-            hasMessage: function (path) {
-                return typeof messagesData[path] != 'undefined';
+            getGlobalize: function (locale) {
+                if (typeof locale == 'undefined')
+                    locale = currentLocale;
+                return globalizeInstances[locale];
+            },
+            hasMessage: function (path, locale) {
+                if (typeof locale == 'undefined')
+                    locale = currentLocale;
+                return typeof messagesData[locale][path] != 'undefined';
             },
         };
     } ];
