@@ -82,7 +82,7 @@ glModule.provider('globalizeWrapper', function () {
             messagesLoaded = false;
             $http.get(l10nBasePath + '/' + currentLocale + '.json')
                 .then(function (result) {
-                    messagesData = result.data[currentLocale];
+                    messagesData = result.data;
                     messagesLoaded = true;
                     finishLoading();
                 });
@@ -99,12 +99,11 @@ glModule.provider('globalizeWrapper', function () {
                 var data = mainData.concat(supplementalData);
                 if (data.length) {
                     Globalize.load(data);
-                    
-                    data = { };
-                    data[currentLocale] = messagesData;
-                    Globalize.loadMessages(data);
+                    Globalize.loadMessages(messagesData);
                     
                     instance = Globalize(currentLocale);
+
+                    messagesData = messagesData[currentLocale];
                 }
 
                 globalizeInstances[currentLocale] = instance;
