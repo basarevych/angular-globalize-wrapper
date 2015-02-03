@@ -40,14 +40,30 @@ module.exports = function(grunt) {
                 autoWatch: false,
                 options: {
                     files: [
-                        "http://ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular.js",
-                        "http://ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular-route.js",
-                        "http://ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular-mocks.js",
-                        { pattern: 'bower_components/cldr-data/**/*.json', included: false, served: true },
-                        { pattern: 'demo/l10n/*.json', included: false, served: true },
+                        'bower_components/angular/angular.js',
+                        'bower_components/angular-mocks/angular-mocks.js',
+
+                        'bower_components/cldrjs/dist/cldr.js',
+                        'bower_components/cldrjs/dist/cldr/event.js',
+                        'bower_components/cldrjs/dist/cldr/supplemental.js',
+
+                        'bower_components/globalize/dist/globalize.js',
+                        'bower_components/globalize/dist/globalize/message.js',
+                        'bower_components/globalize/dist/globalize/number.js',
+                        'bower_components/globalize/dist/globalize/plural.js',
+                        'bower_components/globalize/dist/globalize/currency.js',
+                        'bower_components/globalize/dist/globalize/date.js',
+
+                        'bower_components/karma-read-json/karma-read-json.js',
+
                         '<%= uglify.js.dest %>',
                         'test/unit/**/*.js',
+                        { pattern: 'bower_components/cldr-data/**/*.json', included: false, served: true },
+                        { pattern: 'demo/l10n/*.json', included: false, served: true },
                     ],
+                    proxies: {
+                        '/base/': '/'
+                    }
                 }
             }
         },

@@ -4,36 +4,69 @@ describe('GlobalizeWrapper', function() {
 
     var globalizeWrapper, $httpBackend;
 
+    var cldrBasePath = 'bower_components/cldr-data';
+    var mainResources = [
+        'currencies.json',
+        'ca-gregorian.json',
+        'timeZoneNames.json',
+        'numbers.json'
+    ];
+    var supplementalResources = [
+        'currencyData.json',
+        'likelySubtags.json',
+        'plurals.json',
+        'timeData.json',
+        'weekData.json'
+    ];
+
+    var l10nBasePath = 'demo/l10n';
+    var l10nResources = [
+        'en.json',
+        'ru.json',
+    ];
+
     beforeEach(function (){
         angular.mock.module('globalizeWrapper', function (globalizeWrapperProvider) {
-            globalizeWrapperProvider.setCldrBasePath('bower_components/cldr-data');
-            globalizeWrapperProvider.setL10nBasePath('demo/l10n');
-            globalizeWrapperProvider.setMainResources([]);
-            globalizeWrapperProvider.setSupplementalResources([]);
+            globalizeWrapperProvider.setCldrBasePath(cldrBasePath);
+            globalizeWrapperProvider.setL10nBasePath(l10nBasePath);
+            globalizeWrapperProvider.setMainResources(mainResources);
+            globalizeWrapperProvider.setSupplementalResources(supplementalResources);
         });
     });
 
     beforeEach(inject(function (_globalizeWrapper_) {
         globalizeWrapper = _globalizeWrapper_;
-        globalizeWrapper.setLocale('en');
     }));
 
-/*
-        beforeEach(inject(function (_$httpBackend_) {
-            $httpBackend = _$httpBackend_;
+    beforeEach(inject(function (_$httpBackend_) {
+        $httpBackend = _$httpBackend_;
 
-//            $httpBackend.expectGET('l10n/en.json')
-//                .respond({ });
+        for (var i = 0; i < mainResources.length; i++) {
+            var file = cldrBasePath + '/main/en/' + mainResources[i];
+            $httpBackend.whenGET(file).respond(readJSON(file));
+            var file = cldrBasePath + '/main/ru/' + mainResources[i];
+            $httpBackend.whenGET(file).respond(readJSON(file));
+        }
 
-            $httpBackend.flush();
-        }));
+        for (var i = 0; i < supplementalResources.length; i++) {
+            var file = cldrBasePath + '/supplemental/' + supplementalResources[i];
+            $httpBackend.whenGET(file).respond(readJSON(file));
+        }
 
-        afterEach(function () {
-            $httpBackend.verifyNoOutstandingExpectation();
-            $httpBackend.verifyNoOutstandingRequest();
-        });
-*/
+        for (var i = 0; i < l10nResources.length; i++) {
+            var file = l10nBasePath + '/' + l10nResources[i];
+            $httpBackend.whenGET(file).respond(readJSON(file));
+        }
+    }));
+
+    afterEach(function () {
+        $httpBackend.verifyNoOutstandingExpectation();
+        $httpBackend.verifyNoOutstandingRequest();
+    });
+
     it('is loaded', function (done) {
+        globalizeWrapper.setLocale('en');
+        $httpBackend.flush();
         expect(globalizeWrapper.isLoaded()).toBeTruthy();
         done();
     });
