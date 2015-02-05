@@ -187,6 +187,8 @@ Installation
 
     **locale** argument is optional, current locale will be used if it is omitted.
 
+    **NOTE**: You must call **setLocale(locale)** at least once before trying to get Globalize object for the **locale**.
+
   * **hasMessage(path, locale)**
 
     Return true if path is present in translation file.
