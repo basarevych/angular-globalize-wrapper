@@ -151,6 +151,7 @@ Installation
     Becomes: {{ value | glDate:pattern[:locale] }}
 
     **pattern** is an object
+
     If **locale** is ommited then current locale will be used
 
   * Original **.formatMessage( path [, variables ] )**
@@ -158,6 +159,7 @@ Installation
     Becomes: {{ path | glMessage[:variables][:locale] }}
 
     **variables** argument is an object and is optional
+
     If **locale** is ommited then current locale will be used
 
   * Original **.formatNumber( value [, options] )**
@@ -165,6 +167,7 @@ Installation
     Becomes: {{ value | glNumber[:options][:locale] }}
 
     **options** argument is an object and is optional
+
     If **locale** is ommited then current locale will be used
 
   * Original **.formatCurrency( value, currency [, options] )**
@@ -172,6 +175,7 @@ Installation
     Becomes: {{ value | glCurrency:currency[:options][:locale] }}
 
     **currency** is a string like "USD", **options** is an object and is optional
+
     If **locale** is ommited then current locale will be used
 
 9. The service
