@@ -20,10 +20,7 @@ describe('GlobalizeWrapper', function() {
     ];
 
     var l10nBasePath = 'demo/l10n';
-    var l10nResources = {
-        en: 'en.json',
-        ru: 'ru.json',
-    };
+    var locales = [ 'en', 'ru' ];
 
     beforeEach(function (){
         angular.mock.module('globalizeWrapper', function (globalizeWrapperProvider) {
@@ -49,23 +46,23 @@ describe('GlobalizeWrapper', function() {
     it('is switching locales', function () {
         var spy = spyOn($rootScope, '$broadcast').and.callThrough();
 
+        locales.forEach(function (locale) {
+            for (var i = 0; i < mainResources.length; i++) {
+                var file = cldrBasePath + '/main/' + locale + '/' + mainResources[i];
+                $httpBackend.expectGET(file).respond(readJSON(file));
+            }
+            var file = l10nBasePath + '/' + locale + '.json';
+            $httpBackend.expectGET(file).respond(readJSON(file));
+        });
+
         for (var i = 0; i < supplementalResources.length; i++) {
             var file = cldrBasePath + '/supplemental/' + supplementalResources[i];
             $httpBackend.expectGET(file).respond(readJSON(file));
         }
 
-        for (var i = 0; i < mainResources.length; i++) {
-            var file = cldrBasePath + '/main/en/' + mainResources[i];
-            $httpBackend.expectGET(file).respond(readJSON(file));
-        }
-
-        var file = l10nBasePath + '/' + l10nResources['en'];
-        $httpBackend.expectGET(file).respond(readJSON(file));
-
         expect(globalizeWrapper.isLoaded()).toBeFalsy();
 
-        // Switch to EN and download everything
-        globalizeWrapper.setLocale('en');
+        globalizeWrapper.loadLocales(locales);
         $httpBackend.flush();
 
         expect(spy).toHaveBeenCalledWith('GlobalizeLoadSuccess');
@@ -73,29 +70,11 @@ describe('GlobalizeWrapper', function() {
         expect(globalizeWrapper.getLocale()).toBe('en');
         expect(globalizeWrapper.getGlobalize()).not.toBe(null);
 
-        for (var i = 0; i < mainResources.length; i++) {
-            var file = cldrBasePath + '/main/ru/' + mainResources[i];
-            $httpBackend.expectGET(file).respond(readJSON(file));
-        }
-
-        var file = l10nBasePath + '/' + l10nResources['ru'];
-        $httpBackend.expectGET(file).respond(readJSON(file));
-
-        // Switch to RU and download new /main/ resources only
         globalizeWrapper.setLocale('ru');
-        $httpBackend.flush();
 
-        expect(spy).toHaveBeenCalledWith('GlobalizeLoadSuccess');
+        expect(spy).toHaveBeenCalledWith('GlobalizeLocaleChanged');
         expect(globalizeWrapper.isLoaded()).toBeTruthy();
         expect(globalizeWrapper.getLocale()).toBe('ru');
-        expect(globalizeWrapper.getGlobalize()).not.toBe(null);
-
-        // Switch back to cached EN - no downloads
-        globalizeWrapper.setLocale('en');
-
-        expect(spy).toHaveBeenCalledWith('GlobalizeLoadSuccess');
-        expect(globalizeWrapper.isLoaded()).toBeTruthy();
-        expect(globalizeWrapper.getLocale()).toBe('en');
         expect(globalizeWrapper.getGlobalize()).not.toBe(null);
     });
 

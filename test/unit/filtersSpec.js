@@ -20,10 +20,7 @@ describe('GlobalizeWrapper', function() {
     ];
 
     var l10nBasePath = 'demo/l10n';
-    var l10nResources = {
-        en: 'en.json',
-        ru: 'ru.json',
-    };
+    var locales = [ 'en', 'ru' ];
 
     beforeEach(function (){
         angular.mock.module('globalizeWrapper', function (globalizeWrapperProvider) {
@@ -39,18 +36,19 @@ describe('GlobalizeWrapper', function() {
         $rootScope = _$rootScope_;
         $httpBackend = _$httpBackend_;
 
+        locales.forEach(function (locale) {
+            for (var i = 0; i < mainResources.length; i++) {
+                var file = cldrBasePath + '/main/' + locale + '/' + mainResources[i];
+                $httpBackend.expectGET(file).respond(readJSON(file));
+            }
+            var file = l10nBasePath + '/' + locale + '.json';
+            $httpBackend.expectGET(file).respond(readJSON(file));
+        });
+
         for (var i = 0; i < supplementalResources.length; i++) {
             var file = cldrBasePath + '/supplemental/' + supplementalResources[i];
             $httpBackend.expectGET(file).respond(readJSON(file));
         }
-
-        for (var i = 0; i < mainResources.length; i++) {
-            var file = cldrBasePath + '/main/en/' + mainResources[i];
-            $httpBackend.expectGET(file).respond(readJSON(file));
-        }
-
-        var file = l10nBasePath + '/' + l10nResources['en'];
-        $httpBackend.expectGET(file).respond(readJSON(file));
     }));
 
     afterEach(function () {
@@ -63,7 +61,7 @@ describe('GlobalizeWrapper', function() {
         expect(globalizeWrapper.isLoaded()).toBeFalsy();
         expect(glDateFilter(new Date(), { datetime: 'full' })).toBe('');
 
-        globalizeWrapper.setLocale('en');
+        globalizeWrapper.loadLocales(locales);
         $httpBackend.flush();
 
         expect(globalizeWrapper.isLoaded()).toBeTruthy();
@@ -83,7 +81,7 @@ describe('GlobalizeWrapper', function() {
         expect(globalizeWrapper.isLoaded()).toBeFalsy();
         expect(glMessageFilter('SAMPLE', { arg: 'baz' })).toBe('');
 
-        globalizeWrapper.setLocale('en');
+        globalizeWrapper.loadLocales(locales);
         $httpBackend.flush();
 
         expect(globalizeWrapper.isLoaded()).toBeTruthy();
@@ -106,7 +104,7 @@ describe('GlobalizeWrapper', function() {
         expect(globalizeWrapper.isLoaded()).toBeFalsy();
         expect(glNumberFilter(9000.42)).toBe('');
 
-        globalizeWrapper.setLocale('en');
+        globalizeWrapper.loadLocales(locales);
         $httpBackend.flush();
 
         expect(globalizeWrapper.isLoaded()).toBeTruthy();
@@ -125,7 +123,7 @@ describe('GlobalizeWrapper', function() {
         expect(globalizeWrapper.isLoaded()).toBeFalsy();
         expect(glCurrencyFilter(9000.42, 'USD')).toBe('');
 
-        globalizeWrapper.setLocale('en');
+        globalizeWrapper.loadLocales(locales);
         $httpBackend.flush();
 
         expect(globalizeWrapper.isLoaded()).toBeTruthy();

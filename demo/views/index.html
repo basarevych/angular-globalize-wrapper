@@ -4,6 +4,48 @@
         <button class="btn btn-default" ng-click="switchLocale('ru')">RU</button>
     </div>
     <div class="row">
+        <h4>Messages files:</h4>
+        <pre class="col-sm-6">{
+    "en": {
+        "SAMPLE": "Sample string",
+        "TASK": [
+            "You have {count, plural,",
+            "      =0 {no tasks}",
+            "      =1 {one task}",
+            "   other {# tasks}",
+            "} remaining"
+        ],
+        "LIKED": [
+            "{GENDER, select,",
+            "   male{He}",
+            " female{She}",
+            "  other{They}",
+            "} liked this."
+        ]
+    }
+}</pre>
+        <pre class="col-sm-6">{
+    "ru": {
+        "SAMPLE": "Пример строки",
+        "TASK": [
+            "У вас {count, plural,",
+            "      =0 {не осталось заданий}",
+            "      =1 {осталось одно задание}",
+            "      =2 {остались два задания}",
+            "     few {осталось # задания}",
+            "   other {осталось # заданий}}."
+        ],
+        "LIKED": [
+            "{GENDER, select,",
+            "   male{Ему}",
+            " female{Ей}",
+            "  other{Им}",
+            "} понравилось это."
+        ]
+    }
+}</pre>
+    </div>
+    <div class="row">
         <h4>Date:</h4>
         <span ng-non-bindable>{{ dt | glDate:{ datetime: "full" }}</span><br>
         {{ dt | glDate:{ datetime: "full" } }}
@@ -11,7 +53,12 @@
     <div class="row">
         <h4>Simple Message:</h4>
         <span ng-non-bindable>{{ 'SAMPLE' | glMessage }}</span><br>
-        {{ 'SAMPLE' | glMessage }}<br>
+        {{ 'SAMPLE' | glMessage:{} }}<br>
+    </div>
+    <div class="row">
+        <h4>Forced locale:</h4>
+        <span ng-non-bindable>{{ 'SAMPLE' | glMessage:"ru" }}</span><br>
+        {{ 'SAMPLE' | glMessage:"ru" }}<br>
     </div>
     <div class="row">
         <h4>Plural:</h4>

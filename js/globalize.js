@@ -6,123 +6,100 @@ glModule.provider('globalizeWrapper', function () {
     var cldrBasePath = 'bower_components/cldr-data';
     var l10nBasePath = 'l10n';
     var mainResources = [
-        '/currencies.json',
-        '/ca-gregorian.json',
-        '/timeZoneNames.json',
-        '/numbers.json'
+        'currencies.json',
+        'ca-gregorian.json',
+        'timeZoneNames.json',
+        'numbers.json'
     ];
     var supplementalResources = [
-        '/currencyData.json',
-        '/likelySubtags.json',
-        '/plurals.json',
-        '/timeData.json',
-        '/weekData.json'
+        'currencyData.json',
+        'likelySubtags.json',
+        'plurals.json',
+        'timeData.json',
+        'weekData.json'
     ];
  
     this.$get = [ '$q', '$http', '$rootScope', function ($q, $http, $rootScope) {
-        var globalizeInstances = {}, currentLocale = null, localeChanged = false;
-        var mainLoaded = false, supplementalLoaded = false, messagesLoaded = false;
-        var mainData = [], supplementalData = [], messagesData = {};
+        var globalizeInstances = {}, currentLocale = null;
+        var locales, data = {}, messages = {};
+        var dataLoaded = false, messagesLoaded = false;
 
-        loadResources(
-            cldrBasePath + '/supplemental',
-            supplementalResources,
-            function (results) {
-                for (var i = 0; i < results.length; i++)
-                    supplementalData.push(results[i].data);
-                supplementalLoaded = true;
-                finishLoading();
-            }
-        );
+        function isLoaded() {
+            return (dataLoaded && messagesLoaded);
+        };
 
-        function loadResources(basePath, resources, success) {
-            var promises = [];
-            for (var i = 0; i < resources.length; i++)
-                promises.push($http.get(basePath + '/' + resources[i]));
+        function loadLocales(allLocales) {
+            locales = allLocales;
 
-            $q.all(promises)
-                .then(success)
+            var dataPromises = [], messagesPromises = [];
+            locales.forEach(function (locale) {
+                for (var i = 0; i < mainResources.length; i++)
+                    dataPromises.push($http.get(cldrBasePath + '/main/' + locale + '/' + mainResources[i]));
+                messagesPromises.push($http.get(l10nBasePath + '/' + locale + '.json'));
+            });
+            for (var i = 0; i < supplementalResources.length; i++)
+                dataPromises.push($http.get(cldrBasePath + '/supplemental/' + supplementalResources[i]));
+
+            $q.all(dataPromises)
+                .then(function (result) {
+                    result.forEach(function (file) {
+                        angular.merge(data, file.data);
+                    });
+                    dataLoaded = true;
+                    finish();
+                })
                 .catch(function () {
                     $rootScope.$broadcast('GlobalizeLoadError');
                 });
-        };
 
-        function isLoaded() {
-            return (mainLoaded && supplementalLoaded && messagesLoaded);
+            $q.all(messagesPromises)
+                .then(function (result) {
+                    result.forEach(function (file) {
+                        angular.merge(messages, file.data);
+                    });
+                    messagesLoaded = true;
+                    finish();
+                })
+                .catch(function () {
+                    $rootScope.$broadcast('GlobalizeLoadError');
+                });
+        }
+
+        function finish() {
+            if (!isLoaded())
+                return;
+
+            Globalize.load(data);
+            Globalize.loadMessages(messages);
+
+            locales.forEach(function (locale) {
+                globalizeInstances[locale] = Globalize(locale);
+            });
+
+            $rootScope.$broadcast('GlobalizeLoadSuccess');
+
+            setLocale(locales[0]);
         };
 
         function setLocale(locale) {
-            if (currentLocale == locale)
-                return;
-
-            localeChanged = false;
             currentLocale = locale;
-
-            if (typeof globalizeInstances[currentLocale] != 'undefined') {
-                finishLoading();
-                return;
-            }
-
-            mainLoaded = false;
-            loadResources(
-                cldrBasePath + '/main/' + currentLocale,
-                mainResources,
-                function (results) {
-                    mainData = [];
-                    for (var i = 0; i < results.length; i++)
-                        mainData.push(results[i].data);
-                    mainLoaded = true;
-                    finishLoading();
-                }
-            );
-
-            messagesLoaded = false;
-            $http.get(l10nBasePath + '/' + currentLocale + '.json')
-                .then(function (result) {
-                    messagesData[currentLocale] = result.data[currentLocale];
-                    messagesLoaded = true;
-                    finishLoading();
-                });
-        };
-
-        function finishLoading() {
-            if (!isLoaded() || localeChanged)
-                return;
-
-            localeChanged = true;
-
-            if (typeof globalizeInstances[currentLocale] == 'undefined') {
-                var instance = null;
-                var data = mainData.concat(supplementalData);
-                if (data.length) {
-                    Globalize.load(data);
-
-                    var messages = {};
-                    messages[currentLocale] = messagesData[currentLocale];
-                    Globalize.loadMessages(messages);
-                    
-                    instance = Globalize(currentLocale);
-                }
-
-                globalizeInstances[currentLocale] = instance;
-            }
-
-            $rootScope.$broadcast('GlobalizeLoadSuccess');
+            $rootScope.$broadcast('GlobalizeLocaleChanged');
         };
 
         return {
             isLoaded: isLoaded,
             setLocale: setLocale,
             getLocale: function () { return currentLocale; },
+            loadLocales: loadLocales,
             getGlobalize: function (locale) {
-                if (typeof locale == 'undefined')
+                if (!locale)
                     locale = currentLocale;
                 return globalizeInstances[locale];
             },
             hasMessage: function (path, locale) {
-                if (typeof locale == 'undefined')
+                if (!locale)
                     locale = currentLocale;
-                return typeof messagesData[locale][path] != 'undefined';
+                return typeof messages[locale][path] != 'undefined';
             },
         };
     } ];
@@ -147,13 +124,13 @@ glModule.provider('globalizeWrapper', function () {
 glModule.filter('glDate',
     [ 'globalizeWrapper',
     function (globalizeWrapper) {
-        return function (input, params) {
+        return function (input, params, locale) {
             if (angular.isUndefined(input) || angular.isUndefined(params))
                 return undefined;
             if (input.length == 0 || !globalizeWrapper.isLoaded())
                 return '';
 
-            var gl = globalizeWrapper.getGlobalize();
+            var gl = globalizeWrapper.getGlobalize(locale);
             return gl ? gl.formatDate(input, params) : input;
          };
     } ]
@@ -162,7 +139,7 @@ glModule.filter('glDate',
 glModule.filter('glMessage',
     [ 'globalizeWrapper',
     function (globalizeWrapper) {
-        return function (input, params) {
+        return function (input) {
             if (angular.isUndefined(input))
                 return undefined;
             if (input.length == 0 || !globalizeWrapper.isLoaded())
@@ -172,7 +149,18 @@ glModule.filter('glMessage',
                 return input;
             }
 
-            var gl = globalizeWrapper.getGlobalize();
+            var params, locale;
+            if (arguments.length >= 3) {
+                params = arguments[1];
+                locale = arguments[2];
+            } else if (arguments.length == 2) {
+                if (typeof arguments[1] == 'object')
+                    params = arguments[1];
+                else
+                    locale = arguments[1];
+            }
+
+            var gl = globalizeWrapper.getGlobalize(locale);
             return gl ? gl.formatMessage(input, params) : input;
          };
     } ]
@@ -181,13 +169,24 @@ glModule.filter('glMessage',
 glModule.filter('glNumber',
     [ 'globalizeWrapper',
     function (globalizeWrapper) {
-        return function (input, params) {
+        return function (input) {
             if (angular.isUndefined(input))
                 return undefined;
             if (input.length == 0 || !globalizeWrapper.isLoaded())
                 return '';
 
-            var gl = globalizeWrapper.getGlobalize();
+            var params, locale;
+            if (arguments.length >= 3) {
+                params = arguments[1];
+                locale = arguments[2];
+            } else if (arguments.length == 2) {
+                if (typeof arguments[1] == 'object')
+                    params = arguments[1];
+                else
+                    locale = arguments[1];
+            }
+
+            var gl = globalizeWrapper.getGlobalize(locale);
             return gl ? gl.formatNumber(input, params) : input;
          };
     } ]
@@ -196,13 +195,24 @@ glModule.filter('glNumber',
 glModule.filter('glCurrency',
     [ 'globalizeWrapper',
     function (globalizeWrapper) {
-        return function (input, currency, params) {
+        return function (input, currency) {
             if (angular.isUndefined(input) || angular.isUndefined(currency))
                 return undefined;
             if (input.length == 0 || !globalizeWrapper.isLoaded())
                 return '';
 
-            var gl = globalizeWrapper.getGlobalize();
+            var params, locale;
+            if (arguments.length >= 4) {
+                params = arguments[2];
+                locale = arguments[3];
+            } else if (arguments.length == 3) {
+                if (typeof arguments[2] == 'object')
+                    params = arguments[2];
+                else
+                    locale = arguments[2];
+            }
+
+            var gl = globalizeWrapper.getGlobalize(locale);
             return gl ? gl.formatCurrency(input, currency, params) : input;
          };
     } ]

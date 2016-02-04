@@ -5,12 +5,19 @@ module.exports = function(config){
 
         frameworks: ['jasmine'],
 
-        browsers : ['PhantomJS'],
+        browsers : ['CustomChrome'],
 
         plugins : [
-            'karma-phantomjs-launcher',
-            'karma-jasmine',
+            'karma-chrome-launcher',
+            'karma-jasmine'
         ],
+
+        customLaunchers: {
+            CustomChrome: {
+                base: 'Chrome',
+                flags: ['--no-proxy-server']
+            }
+        }
 
     });
 };
